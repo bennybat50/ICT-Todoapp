@@ -7,25 +7,27 @@ import 'database_repo/database_repository.dart';
 import 'database_repo/todoModel.dart';
 import 'utilities/app_actions.dart';
 
-class CreateTask extends StatefulWidget {
-  const CreateTask({Key? key}) : super(key: key);
+class UpdateTask extends StatefulWidget {
+  final TodoModel data;
+  const UpdateTask({Key? key, required this.data}) : super(key: key);
 
   @override
-  State<CreateTask> createState() => _CreateTaskState();
+  State<UpdateTask> createState() => _UpdateTaskState();
 }
 
-class _CreateTaskState extends State<CreateTask> {
+class _UpdateTaskState extends State<UpdateTask> {
   var subTasks = [];
   var subTaskName = TextEditingController();
   var taskName = TextEditingController();
   var taskDescp = TextEditingController();
+  var startDate = TextEditingController();
   var taskDate = TextEditingController();
   bool editSub = false;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> _subformKey = GlobalKey<FormState>();
   DateTime _selectedDateTime = DateTime.now();
   var priority = "";
-
+  late TodoModel task;
   var forDecoration = BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.circular(15),
@@ -40,6 +42,11 @@ class _CreateTaskState extends State<CreateTask> {
 
   @override
   void initState() {
+    task = widget.data;
+    subTaskName.text = widget.data.taskName;
+    taskDescp.text = widget.data.description;
+    taskDate.text = widget.data.endDate;
+
     subTaskName.addListener(() {
       setState(() {
         if (subTaskName.text.length > 1) {
@@ -105,6 +112,86 @@ class _CreateTaskState extends State<CreateTask> {
                             contentPadding: EdgeInsets.symmetric(
                               vertical: 20,
                               horizontal: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 10),
+                        child: const Text(
+                          "Start Date",
+                          style: TextStyle(
+                            color: Colors.deepOrange,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: forDecoration,
+                        child: InkWell(
+                          onTap: () {
+                            AppActions().showAppDialog(context,
+                                title: "Select Start Date",
+                                descp:
+                                    "Please select the time you will complete this task.",
+                                child: Container(
+                                    height: MediaQuery.of(context)
+                                            .copyWith()
+                                            .size
+                                            .height /
+                                        3,
+                                    child: CupertinoDatePicker(
+                                      initialDateTime: DateTime.now(),
+                                      onDateTimeChanged: (DateTime newdate) {
+                                        setState(() {
+                                          startDate.text = newdate.toString();
+                                          _selectedDateTime = newdate;
+                                        });
+                                      },
+                                      use24hFormat: false,
+                                      maximumDate: new DateTime(2029, 12, 30),
+                                      minimumYear: 2022,
+                                      maximumYear: 2029,
+                                      minuteInterval: 1,
+                                      mode: CupertinoDatePickerMode.dateAndTime,
+                                    )), okAction: () async {
+                              Navigator.pop(context);
+                            }, okText: "Confirm", cancleText: "Cancel");
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: startDate,
+                                    enabled: false,
+                                    decoration: const InputDecoration(
+                                      hintText: "2022-08-12",
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 20,
+                                        horizontal: 20,
+                                      ),
+                                    ),
+                                    keyboardType: TextInputType.datetime,
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.calendar_month,
+                                  color: Colors.deepOrangeAccent,
+                                ),
+                              ],
                             ),
                           ),
                         ),
